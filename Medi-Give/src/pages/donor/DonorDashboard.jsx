@@ -183,6 +183,13 @@ export default function DonorDashboard() {
                             <p className="text-slate-400 text-lg">Our AI is reading the packaging details...</p>
                             <p className="text-slate-500 text-sm">Identifying Name, Expiry, and Manufacturer</p>
                         </div>
+
+                        <button
+                            onClick={() => setView('scan')}
+                            className="mt-8 text-slate-500 hover:text-white transition-colors text-sm font-medium"
+                        >
+                            Cancel Scan
+                        </button>
                     </div>
                 )}
 
@@ -216,6 +223,10 @@ export default function DonorDashboard() {
                     <Scanner
                         onScanComplete={handleScanComplete}
                         onScanStart={() => setView('scanning')}
+                        onScanError={(msg) => {
+                            alert(msg); // Simple alert for now, can be improved to a toast later
+                            setView('scan');
+                        }}
                         inputId="donor-scan-input"
                     />
                 </div>

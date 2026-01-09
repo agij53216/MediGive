@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { scanMedicine } from '../services/scanMedicine';
 import { Camera, Loader2, AlertCircle, UploadCloud } from 'lucide-react';
 
-export default function Scanner({ onScanComplete, onScanStart, inputId = 'file-upload' }) {
+export default function Scanner({ onScanComplete, onScanStart, onScanError, inputId = 'file-upload' }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -24,7 +24,9 @@ export default function Scanner({ onScanComplete, onScanStart, inputId = 'file-u
       onScanComplete(result);
     } catch (err) {
       console.error(err);
-      setError(err.message || "Failed to scan medicine. Please try again.");
+      const errorMessage = err.message || "Failed to scan medicine. Please try again.";
+      setError(errorMessage);
+      if (onScanError) onScanError(errorMessage);
     } finally {
       setLoading(false);
       // Reset input value to allow re-scanning same file if needed
