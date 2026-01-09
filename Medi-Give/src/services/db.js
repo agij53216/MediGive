@@ -70,7 +70,7 @@ export async function requestPickup(donationId, ngoId) {
         });
 
         // 2. Create Pickup Request Record
-        await addDoc(collection(db, "pickup_requests"), {
+        const docRef = await addDoc(collection(db, "pickup_requests"), {
             donationId,
             ngoId,
             status: "Pending",
