@@ -1,12 +1,32 @@
-// Helper to convert file to Base64
-const fileToBase64 = (file) => {
+// Helper to resize image before converting to Base64
+const resizeImage = (file, maxWidth = 1024, quality = 0.8) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => {
-      // Remove "data:image/jpeg;base64," prefix
-      const base64String = reader.result.split(',')[1];
-      resolve(base64String);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Get Base64 string directly (removes the prefix automatically if we split)
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        const base64String = dataUrl.split(',')[1];
+        resolve(base64String);
+      };
+      img.onerror = (error) => reject(error);
     };
     reader.onerror = (error) => reject(error);
   });
@@ -14,11 +34,12 @@ const fileToBase64 = (file) => {
 
 export async function scanMedicine(imageFile) {
   try {
-    const base64Data = await fileToBase64(imageFile);
+    // Resize image to max 1024px width/height to ensure fast upload
+    const base64Data = await resizeImage(imageFile);
 
     // Use environment variable if available (Production), otherwise fallback to relative path (Local via Proxy)
-    const apiUrl = import.meta.env.VITE_API_URL 
-      ? `${import.meta.env.VITE_API_URL}/api/scan` 
+    const apiUrl = import.meta.env.VITE_API_URL
+      ? `${import.meta.env.VITE_API_URL}/api/scan`
       : "/api/scan";
 
     const response = await fetch(apiUrl, {
@@ -26,7 +47,7 @@ export async function scanMedicine(imageFile) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         imageBase64: base64Data,
-        mimeType: imageFile.type
+        mimeType: "image/jpeg" // Always sending jpeg from canvas
       }),
     });
 
@@ -67,6 +88,12 @@ export async function scanMedicine(imageFile) {
     return result;
   } catch (error) {
     console.error("Scan failed:", error);
+
+    // Provide user-friendly error for network/timeout issues (common on free tier)
+    if (error.message && error.message.includes("Failed to fetch")) {
+      throw new Error("Cannot connect to server. The backend might be waking up (free tier). Please wait 30s and try again.");
+    }
+
     throw error;
   }
 }
