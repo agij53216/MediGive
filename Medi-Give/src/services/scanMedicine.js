@@ -16,10 +16,12 @@ export async function scanMedicine(imageFile) {
   try {
     const base64Data = await fileToBase64(imageFile);
 
-    // Points to /api/scan
-    // Locally: Proxied by Vite -> http://localhost:3000/api/scan
-    // Vercel: Served by Vercel Function -> /api/scan
-    const response = await fetch("/api/scan", {
+    // Use environment variable if available (Production), otherwise fallback to relative path (Local via Proxy)
+    const apiUrl = import.meta.env.VITE_API_URL 
+      ? `${import.meta.env.VITE_API_URL}/api/scan` 
+      : "/api/scan";
+
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
