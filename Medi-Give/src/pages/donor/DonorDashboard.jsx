@@ -90,11 +90,6 @@ export default function DonorDashboard() {
                                 </button>
                             </div>
 
-                            {/* Scanner Hidden Input (Triggered by Guidelines or Button) */}
-                            <div className="hidden">
-                                <Scanner onScanComplete={handleScanComplete} inputId="donor-scan-input" />
-                            </div>
-
                             {/* Abstract Decorative Elements */}
                             <div className="absolute right-0 top-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                             <div className="absolute right-20 bottom-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-y-1/2"></div>
@@ -165,6 +160,32 @@ export default function DonorDashboard() {
                     </div>
                 )}
 
+                {/* Scanning Transition View */}
+                {view === 'scanning' && (
+                    <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in duration-500">
+                        <div className="relative mb-12">
+                            {/* Outer Rings */}
+                            <div className="absolute inset-0 bg-teal-500/20 rounded-full blur-2xl animate-pulse"></div>
+                            <div className="w-32 h-32 rounded-full border-4 border-slate-800 border-t-teal-500 animate-spin"></div>
+
+                            {/* Inner Icon */}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center border border-white/10">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-teal-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-teal-500/20 animate-pulse">
+                                        <Plus className="text-white w-8 h-8" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2 className="text-3xl font-bold text-white mb-4">Analyzing Medicine</h2>
+                        <div className="flex flex-col gap-2 text-center">
+                            <p className="text-slate-400 text-lg">Our AI is reading the packaging details...</p>
+                            <p className="text-slate-500 text-sm">Identifying Name, Expiry, and Manufacturer</p>
+                        </div>
+                    </div>
+                )}
+
                 {view === 'form' && (
                     <DonationForm
                         data={scanData}
@@ -189,6 +210,15 @@ export default function DonorDashboard() {
                         </button>
                     </div>
                 )}
+
+                {/* Persistent Scanner (Always mounted but hidden) */}
+                <div className="hidden">
+                    <Scanner
+                        onScanComplete={handleScanComplete}
+                        onScanStart={() => setView('scanning')}
+                        inputId="donor-scan-input"
+                    />
+                </div>
             </main>
         </div>
     );

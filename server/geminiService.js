@@ -42,7 +42,10 @@ export async function scanMedicineFromBuffer(buffer, mimeType) {
       }
     `;
 
+    console.time("Gemini Response Time"); // Start timer
     const result = await model.generateContent([prompt, imagePart]);
+    console.timeEnd("Gemini Response Time"); // End timer
+
     const responseText = result.response.text();
 
     // Clean up potential markdown formatting (```json ... ```)

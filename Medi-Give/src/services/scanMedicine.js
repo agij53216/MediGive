@@ -1,5 +1,5 @@
 // Helper to resize image before converting to Base64
-const resizeImage = (file, maxWidth = 1024, quality = 0.8) => {
+const resizeImage = (file, maxWidth = 600, quality = 0.5) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
