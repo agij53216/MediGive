@@ -37,10 +37,12 @@ export async function scanMedicine(imageFile) {
     // Resize image to max 1024px width/height to ensure fast upload
     const base64Data = await resizeImage(imageFile);
 
-    // Use environment variable if available (Production), otherwise fallback to relative path (Local via Proxy)
-    const apiUrl = import.meta.env.VITE_API_URL
-      ? `${import.meta.env.VITE_API_URL}/api/scan`
-      : "/api/scan";
+    // Use environment variable, OR fallback to the known Render URL directly
+    // This ensures it works on Vercel even if the env var isn't set up perfectly yet.
+    const backendUrl = import.meta.env.VITE_API_URL || "https://medigive.onrender.com";
+    const apiUrl = `${backendUrl}/api/scan`;
+
+    console.log("🚀 Scanning using API:", apiUrl); // Debug log for user checking console
 
     const response = await fetch(apiUrl, {
       method: "POST",
